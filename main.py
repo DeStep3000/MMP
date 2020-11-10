@@ -93,10 +93,9 @@ class Canvas(QWidget):
         self.green = 0
         self.blue = 0
         self.colors = (self.red, self.green, self.blue)
+
         self.objects = []
 
-        self.file = sqlite3.connect('base.db')
-        self.cur = self.file.cursor()
         self.instrument = 'brush'
 
         self.button = QPushButton(self)
@@ -134,40 +133,39 @@ class Canvas(QWidget):
                                       self.cur.execute("""SELECT color FROM colors""").fetchall())):
             self.cur.execute("""Insert INTO colors(color) Values (?) """, (self.color,))
         if self.instrument == 'brush':
-            self.cur.execute("""Insert INTO Base(action, color, size) Values 
+            self.cur.execute("""Insert INTO Base_of_paint(action, color, size) Values 
             ('brush', (Select id from colors WHERE color = ?), ?) """,
                              (self.color, self.size_brush))
             self.objects.append(BrushPoint(event.x(), event.y(), self.colors,
                                            self.size_brush))
             self.update()
         elif self.instrument == 'line':
-            self.cur.execute("""Insert INTO Base(action, color, size) Values 
+            self.cur.execute("""Insert INTO Base_of_paint(action, color, size) Values 
             ('line', (Select id from colors WHERE color = ?), ?) """,
                              (self.color, self.size_line,))
             self.objects.append(Line(event.x(), event.y(), event.x(), event.y(),
                                      self.colors, self.size_line))
             self.update()
         elif self.instrument == 'circle':
-            self.cur.execute("""Insert INTO Base(action, color) 
+            self.cur.execute("""Insert INTO Base_of_paint(action, color) 
             Values ('circle', (Select id from colors WHERE color = ?)) """,
                              (self.color,))
             self.objects.append(Circle(event.x(), event.y(), event.x(), event.y(), self.colors))
             self.update()
         elif self.instrument == 'rectangle':
-            self.cur.execute("""Insert INTO Base(action, color) VALUES('rectangle', 
+            self.cur.execute("""Insert INTO Base_of_paint(action, color) VALUES('rectangle', 
             (Select id from colors WHERE color = ?))""", (self.color,))
             self.objects.append(Rectangle(event.x(), event.y(), event.x(), event.y(),
                                           self.colors))
             self.update()
-        elif self.instrument == 'lastic':
+        elif self.instrument == 'eraser':
+            self.cur.execute("""Insert INTO Base_of_paint(action, size) Values 
+                        ('eraser', '6') """)
             self.objects.append(Eraser(event.x(), event.y()))
             self.update()
         self.file.commit()
-        self.file.close()
 
     def mouseMoveEvent(self, event):
-        self.file = sqlite3.connect('base.db')
-        self.cur = self.file.cursor()
         if self.instrument == 'brush':
             self.objects.append(BrushPoint(event.x(), event.y(), self.colors, self.size_brush))
             self.update()
@@ -183,7 +181,7 @@ class Canvas(QWidget):
             self.objects[-1].x = event.x()
             self.objects[-1].y = event.y()
             self.update()
-        elif self.instrument == 'lastic':
+        elif self.instrument == 'eraser':
             self.objects.append(Eraser(event.x(), event.y()))
             self.update()
 
@@ -229,8 +227,8 @@ class Canvas(QWidget):
         self.image = Pictures()
         self.image.show()
 
-    def lastic(self):
-        self.instrument = 'lastic'
+    def eraser(self):
+        self.instrument = 'eraser'
 
 
 class Window(QMainWindow):
@@ -255,11 +253,11 @@ class Window(QMainWindow):
 
         self.action_workpicture.triggered.connect(self.centralWidget().setPicture)
 
-        self.action_lactic.triggered.connect(self.centralWidget().lastic)
+        self.action_lactic.triggered.connect(self.centralWidget().eraser)
 
     def closeEvent(self, event):
         self.cur = self.centralWidget().file.cursor()
-        self.cur.execute("""DELETE from Base""")
+        self.cur.execute("""DELETE from Base_of_paint""")
         self.centralWidget().file.commit()
         self.centralWidget().file.close()
 
@@ -282,7 +280,7 @@ class Window(QMainWindow):
             elif event.key() == Qt.Key_I:
                 self.centralWidget().setPicture()
             elif event.key() == Qt.Key_L:
-                self.centralWidget().instrument = 'lastic'
+                self.centralWidget().instrument = 'eraser'
 
 
 class Draw(QWidget):
@@ -311,62 +309,90 @@ class Draw(QWidget):
         self.alpha.setValue(255)
         self.alpha.valueChanged.connect(self.change_alpha)
 
+        self.file = sqlite3.connect('base.db')
+        self.cur = self.file.cursor()
+
     def change_alpha(self):
         transport = int(self.alpha.value())
         self.img.putalpha(transport)
         self.img.save('picture.png')
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('Change_alpha', ?)""",
+                         (self.alpha.value(),))
         self.pixmap = QPixmap('picture.png')
         self.image.setPixmap(self.pixmap)
+        self.file.commit()
 
-    def red_chanel(self):
+    def red_channel(self):
         self.img.putdata(self.r)
         self.img.save('picture.png')
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('red_channel', 
+        'red')""")
         self.pixmap = QPixmap('picture.png')
         self.image.setPixmap(self.pixmap)
+        self.file.commit()
 
-    def green_chanel(self):
+    def green_channel(self):
         self.img.putdata(self.g)
         self.img.save('picture.png')
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('green_channel', 
+                                                                        'green')""")
         self.pixmap = QPixmap('picture.png')
         self.image.setPixmap(self.pixmap)
+        self.file.commit()
 
-    def blue_chanel(self):
+    def blue_channel(self):
         self.img.putdata(self.b)
         self.img.save('picture.png')
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('blue_channel', 
+        'blue')""")
         self.pixmap = QPixmap('picture.png')
         self.image.setPixmap(self.pixmap)
+        self.file.commit()
 
-    def all_chanel(self):
+    def all_channel(self):
         self.img = Image.open(self.fname)
         self.img.save('picture.png')
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('all_channels', 
+        'all')""")
         self.pixmap = QPixmap('picture.png')
         self.image.setPixmap(self.pixmap)
+        self.file.commit()
 
     def rotate_90(self):
         self.img = self.img.rotate(90, expand=True)
         self.img.save('picture.png')
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('rotate', 
+                '90')""")
         self.pixmap = QPixmap('picture.png')
         self.image.setPixmap(self.pixmap)
+        self.file.commit()
 
     def inrotate_90(self):
         self.img = self.img.rotate(-90, expand=True)
         self.img.save('picture.png')
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('rotate', 
+                '-90')""")
         self.pixmap = QPixmap('picture.png')
         self.image.setPixmap(self.pixmap)
+        self.file.commit()
 
     def download(self):
         self.fname = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '',
                                                  'Картинка(*.jpg);; Картинка(*.png);; '
                                                  'Все файлы(*)')[0]
-        self.pixmap = QPixmap(self.fname)
-        self.image.move(10, 10)
-        self.image.setPixmap(self.pixmap)
 
         self.img = Image.open(self.fname)
+        x, y = self.img.size
+        self.image.resize(x, y)
+        self.pixmap = QPixmap(self.fname)
+        self.image.setPixmap(self.pixmap)
         self.data = self.img.getdata()
         self.r = [(d[0], 0, 0) for d in self.data]
         self.g = [(0, d[1], 0) for d in self.data]
         self.b = [(0, 0, d[-1]) for d in self.data]
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('download', 
+                        ?)""", (self.fname,))
+        self.file.commit()
 
     def save(self):
         save_file = QFileDialog.getSaveFileName(self, 'Загрузить картинку', '', '*.jpg;'
@@ -379,6 +405,9 @@ class Draw(QWidget):
             screenshot.save(save_file[0], 'png')
         else:
             screenshot.save(save_file[0])
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('download', 
+                                ?)""", (save_file[0],))
+        self.file.commit()
 
 
 class Pictures(QMainWindow):
@@ -387,10 +416,10 @@ class Pictures(QMainWindow):
         uic.loadUi('pictures.ui', self)
         self.setCentralWidget(Draw())
 
-        self.action_red.triggered.connect(self.centralWidget().red_chanel)
-        self.action_green.triggered.connect(self.centralWidget().green_chanel)
-        self.action_blue.triggered.connect(self.centralWidget().blue_chanel)
-        self.action_all.triggered.connect(self.centralWidget().all_chanel)
+        self.action_red.triggered.connect(self.centralWidget().red_channel)
+        self.action_green.triggered.connect(self.centralWidget().green_channel)
+        self.action_blue.triggered.connect(self.centralWidget().blue_channel)
+        self.action_all.triggered.connect(self.centralWidget().all_channel)
 
         self.action_rotate_90.triggered.connect(self.centralWidget().rotate_90)
         self.action_inrotate_90.triggered.connect(self.centralWidget().inrotate_90)
@@ -408,17 +437,23 @@ class Pictures(QMainWindow):
             elif event.key() == Qt.Key_D:
                 self.centralWidget().rotate_90()
             elif event.key() == Qt.Key_R:
-                self.centralWidget().red_chanel()
+                self.centralWidget().red_channel()
             elif event.key() == Qt.Key_G:
-                self.centralWidget().green_chanel()
+                self.centralWidget().green_channel()
             elif event.key() == Qt.Key_B:
-                self.centralWidget().blue_chanel()
+                self.centralWidget().blue_channel()
             elif event.key() == Qt.Key_W:
-                self.centralWidget().all_chanel()
+                self.centralWidget().all_channel()
             elif event.key() == Qt.Key_I:
                 self.centralWidget().download()
             elif event.key() == Qt.Key_S:
                 self.centralWidget().save()
+
+    def closeEvent(self, event):
+        self.cur = self.centralWidget().file.cursor()
+        self.cur.execute("""DELETE from Base_of_picture""")
+        self.centralWidget().file.commit()
+        self.centralWidget().file.close()
 
 
 def except_hook(cls, exception, traceback):
