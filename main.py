@@ -109,6 +109,7 @@ class Canvas(QWidget):
 
         self.label = QLabel(self)
         self.label.move(0, 0)
+        self.label.resize(949, 718)
         self.pixmap = QPixmap()
         self.label.setPixmap(self.pixmap)
 
@@ -233,6 +234,21 @@ class Canvas(QWidget):
     def eraser(self):
         self.instrument = 'eraser'
 
+    def save(self):
+        save_file = QFileDialog.getSaveFileName(self, 'Загрузить картинку', '', '*.jpg;'
+                                                                            ';*.png;;Все файлы *')
+        screen = QApplication.primaryScreen()
+        screenshot = screen.grabWindow(self.label.winId())
+        if save_file[-1] == '*.jpg':
+            screenshot.save(save_file[0], 'jpg')
+        elif save_file[-1] == '*.png':
+            screenshot.save(save_file[0], 'png')
+        else:
+            screenshot.save(save_file[0])
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('download', 
+                                                ?)""", (save_file[0],))
+        self.file.commit()
+
 
 class Window(QMainWindow):
     def __init__(self):
@@ -257,6 +273,8 @@ class Window(QMainWindow):
         self.action_workpicture.triggered.connect(self.centralWidget().setPicture)
 
         self.action_lactic.triggered.connect(self.centralWidget().eraser)
+
+        self.action_save.triggered.connect(self.centralWidget().save)
 
     def closeEvent(self, event):
         self.cur = self.centralWidget().file.cursor()
@@ -284,6 +302,8 @@ class Window(QMainWindow):
                 self.centralWidget().setPicture()
             elif event.key() == Qt.Key_L:
                 self.centralWidget().instrument = 'eraser'
+            elif event.key() == Qt.Key_E:
+                self.centralWidget().save()
 
 
 class Draw(QWidget):

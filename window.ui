@@ -64,6 +64,7 @@
      <string>Изображение</string>
     </property>
     <addaction name="action_workpicture"/>
+    <addaction name="action_save"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -195,6 +196,11 @@
    </property>
    <property name="toolTip">
     <string>Стирает линией(Ctrl + L)</string>
+   </property>
+  </action>
+  <action name="action_save">
+   <property name="text">
+    <string>Сохранить(Ctrl + E)</string>
    </property>
   </action>
  </widget>
