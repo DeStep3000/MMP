@@ -31,7 +31,7 @@ class Eraser:
     def draw(self, painter):
         painter.setBrush(QBrush(QColor(240, 240, 240)))
         painter.setPen(QColor(240, 240, 240))
-        painter.drawEllipse(self.x - 8, self.y - 8, 8, 8)
+        painter.drawEllipse(self.x - 10, self.y - 10, 10, 10)
 
 
 class Line:
@@ -102,16 +102,16 @@ class Canvas(QWidget):
 
         self.instrument = 'brush'
 
-        self.button = QPushButton(self)
-        self.button.move(850, 5)
-        self.button.setText('Цвет')
-        self.button.clicked.connect(self.run)
-
         self.label = QLabel(self)
         self.label.move(0, 0)
         self.label.resize(949, 718)
         self.pixmap = QPixmap()
         self.label.setPixmap(self.pixmap)
+
+        self.button = QPushButton(self)
+        self.button.move(850, 5)
+        self.button.setText('Цвет')
+        self.button.clicked.connect(self.run)
 
     def paintEvent(self, event):
         painter = QPainter()
@@ -228,8 +228,12 @@ class Canvas(QWidget):
         self.instrument = 'rectangle'
 
     def setPicture(self):
-        self.image = Pictures()
-        self.image.show()
+        self.fname = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '',
+                                                 'Картинка(*.jpg);; Картинка(*.png);; '
+                                                 'Все файлы(*)')[0]
+        if self.fname:
+            self.image = Pictures(self.fname)
+            self.image.show()
 
     def eraser(self):
         self.instrument = 'eraser'
@@ -287,8 +291,7 @@ class Window(QMainWindow):
             self.close()
         elif event.modifiers() == Qt.ControlModifier:
             if event.key() == Qt.Key_S:
-                self.centralWidget().instrument = 'brush'
-                self.centralWidget().size_brush = 6
+                self.centralWidget().save()
             elif event.key() == Qt.Key_D:
                 self.centralWidget().instrument = 'circle'
             elif event.key() == Qt.Key_A:
@@ -303,15 +306,14 @@ class Window(QMainWindow):
             elif event.key() == Qt.Key_L:
                 self.centralWidget().instrument = 'eraser'
             elif event.key() == Qt.Key_E:
-                self.centralWidget().save()
+                self.centralWidget().instrument = 'brush'
+                self.centralWidget().size_brush = 6
 
 
 class Draw(QWidget):
-    def __init__(self):
+    def __init__(self, fname):
         super().__init__()
-        self.fname = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '',
-                                                 'Картинка(*.jpg);; Картинка(*.png);; '
-                                                 'Все файлы(*)')[0]
+        self.fname = fname
 
         self.pixmap = QPixmap(self.fname)
         self.image = QLabel(self)
@@ -417,18 +419,19 @@ class Draw(QWidget):
                                                  'Картинка(*.jpg);; Картинка(*.png);; '
                                                  'Все файлы(*)')[0]
 
-        self.img = Image.open(self.fname)
-        x, y = self.img.size
-        self.image.resize(x, y)
-        self.pixmap = QPixmap(self.fname)
-        self.image.setPixmap(self.pixmap)
-        self.data = self.img.getdata()
-        self.r = [(d[0], 0, 0) for d in self.data]
-        self.g = [(0, d[1], 0) for d in self.data]
-        self.b = [(0, 0, d[-1]) for d in self.data]
-        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('download', 
-                        ?)""", (self.fname,))
-        self.file.commit()
+        if self.fname:
+            self.img = Image.open(self.fname)
+            x, y = self.img.size
+            self.image.resize(x, y)
+            self.pixmap = QPixmap(self.fname)
+            self.image.setPixmap(self.pixmap)
+            self.data = self.img.getdata()
+            self.r = [(d[0], 0, 0) for d in self.data]
+            self.g = [(0, d[1], 0) for d in self.data]
+            self.b = [(0, 0, d[-1]) for d in self.data]
+            self.cur.execute("""Insert Into Base_of_picture(action, value) Values('download', 
+                            ?)""", (self.fname,))
+            self.file.commit()
 
     def save(self):
         save_file = QFileDialog.getSaveFileName(self, 'Загрузить картинку', '', '*.jpg;'
@@ -447,10 +450,10 @@ class Draw(QWidget):
 
 
 class Pictures(QMainWindow):
-    def __init__(self):
+    def __init__(self, fname):
         super(Pictures, self).__init__()
         uic.loadUi('pictures.ui', self)
-        self.setCentralWidget(Draw())
+        self.setCentralWidget(Draw(fname))
 
         self.action_red.triggered.connect(self.centralWidget().red_channel)
         self.action_green.triggered.connect(self.centralWidget().green_channel)
