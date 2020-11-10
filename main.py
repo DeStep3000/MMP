@@ -93,6 +93,10 @@ class Canvas(QWidget):
         self.green = 0
         self.blue = 0
         self.colors = (self.red, self.green, self.blue)
+        self.id = 0
+
+        self.file = sqlite3.connect('base.db')
+        self.cur = self.file.cursor()
 
         self.objects = []
 
@@ -127,8 +131,7 @@ class Canvas(QWidget):
             self.colors = (self.red, self.green, self.blue)
 
     def mousePressEvent(self, event):
-        self.file = sqlite3.connect('base.db')
-        self.cur = self.file.cursor()
+        self.id += 1
         if self.color not in list(map(lambda x: x[0],
                                       self.cur.execute("""SELECT color FROM colors""").fetchall())):
             self.cur.execute("""Insert INTO colors(color) Values (?) """, (self.color,))
@@ -300,6 +303,7 @@ class Draw(QWidget):
         self.r = [(d[0], 0, 0) for d in self.data]
         self.g = [(0, d[1], 0) for d in self.data]
         self.b = [(0, 0, d[-1]) for d in self.data]
+        self.all = [(d[0], d[1], d[-1]) for d in self.data]
 
         self.alpha = QSlider(self)
         self.alpha.move(30, 10)
@@ -311,6 +315,10 @@ class Draw(QWidget):
 
         self.file = sqlite3.connect('base.db')
         self.cur = self.file.cursor()
+
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('download', ?)""",
+                         (self.fname,))
+        self.file.commit()
 
     def change_alpha(self):
         transport = int(self.alpha.value())
@@ -350,29 +358,37 @@ class Draw(QWidget):
         self.file.commit()
 
     def all_channel(self):
-        self.img = Image.open(self.fname)
-        self.img.save('picture.png')
-        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('all_channels', 
-        'all')""")
-        self.pixmap = QPixmap('picture.png')
-        self.image.setPixmap(self.pixmap)
-        self.file.commit()
+        try:
+            self.img.putdata(self.all)
+        except TypeError:
+            self.img = Image.open('picture.png')
+        finally:
+            self.img.save('picture.png')
+            self.pixmap = QPixmap('picture.png')
+            self.image.setPixmap(self.pixmap)
+            self.cur.execute("""Insert Into Base_of_picture(action, value) Values('all_channels', 
+            'all')""")
+            self.file.commit()
 
     def rotate_90(self):
         self.img = self.img.rotate(90, expand=True)
+        x, y = self.img.size
         self.img.save('picture.png')
         self.cur.execute("""Insert Into Base_of_picture(action, value) Values('rotate', 
                 '90')""")
         self.pixmap = QPixmap('picture.png')
+        self.image.resize(x, y)
         self.image.setPixmap(self.pixmap)
         self.file.commit()
 
     def inrotate_90(self):
         self.img = self.img.rotate(-90, expand=True)
+        x, y = self.img.size
         self.img.save('picture.png')
         self.cur.execute("""Insert Into Base_of_picture(action, value) Values('rotate', 
                 '-90')""")
         self.pixmap = QPixmap('picture.png')
+        self.image.resize(x, y)
         self.image.setPixmap(self.pixmap)
         self.file.commit()
 
