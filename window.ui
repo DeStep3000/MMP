@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Min_Paint</class>
+ <widget class="QMainWindow" name="Min_Paint">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1060</width>
+    <height>745</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Мини - Paint</string>
+  </property>
+  <widget class="QWidget" name="CentralWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="tabletTracking">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_lactic"/>
+   <addaction name="separator"/>
+   <addaction name="action_brush1"/>
+   <addaction name="action_brush2"/>
+   <addaction name="action_brush3"/>
+   <addaction name="separator"/>
+   <addaction name="action_line1"/>
+   <addaction name="action_line2"/>
+   <addaction name="action_line3"/>
+   <addaction name="action_line4"/>
+   <addaction name="action_line5"/>
+   <addaction name="separator"/>
+   <addaction name="action_circle"/>
+   <addaction name="separator"/>
+   <addaction name="acnion_rectangle"/>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1060</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Изображение</string>
+    </property>
+    <addaction name="action_workpicture"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Инструменты</string>
+    </property>
+    <widget class="QMenu" name="menu_4">
+     <property name="title">
+      <string>Кисть</string>
+     </property>
+     <addaction name="action_brush1"/>
+     <addaction name="action_brush2"/>
+     <addaction name="action_brush3"/>
+    </widget>
+    <widget class="QMenu" name="menu_5">
+     <property name="title">
+      <string>Линия</string>
+     </property>
+     <addaction name="action_line1"/>
+     <addaction name="action_line2"/>
+     <addaction name="action_line3"/>
+     <addaction name="action_line4"/>
+     <addaction name="action_line5"/>
+    </widget>
+    <addaction name="action_lactic"/>
+    <addaction name="menu_4"/>
+    <addaction name="menu_5"/>
+    <addaction name="action_circle"/>
+    <addaction name="acnion_rectangle"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <action name="action_circle">
+   <property name="text">
+    <string>Окружность</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует окружность (Ctrl + D)</string>
+   </property>
+  </action>
+  <action name="action_brush1">
+   <property name="text">
+    <string>Тонкая кисть</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует тонкой кистью</string>
+   </property>
+  </action>
+  <action name="action_brush2">
+   <property name="text">
+    <string>Обычная кисть</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует обычной кистью (Ctrl + S)</string>
+   </property>
+  </action>
+  <action name="action_brush3">
+   <property name="text">
+    <string>Толстая кисть</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует толстой кистью</string>
+   </property>
+  </action>
+  <action name="action_line1">
+   <property name="text">
+    <string>Тонкая линия</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует тонкой прямой линией</string>
+   </property>
+  </action>
+  <action name="action_line2">
+   <property name="text">
+    <string>Линия №2</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует линией №2(чуть потолще чем тонкая линия)</string>
+   </property>
+  </action>
+  <action name="action_line3">
+   <property name="text">
+    <string>Обычная линия</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует обычной линией (Ctrl + A)</string>
+   </property>
+  </action>
+  <action name="action_line4">
+   <property name="text">
+    <string>Линия №4</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует линией №4(чуть потолще чем обычная линия)</string>
+   </property>
+  </action>
+  <action name="action_line5">
+   <property name="text">
+    <string>Толстая линия</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует толстой линией</string>
+   </property>
+  </action>
+  <action name="action_workpicture">
+   <property name="text">
+    <string>Работа с изображением (Ctrl + I)</string>
+   </property>
+   <property name="toolTip">
+    <string>Работа с изображением (Ctrl + I)</string>
+   </property>
+  </action>
+  <action name="acnion_rectangle">
+   <property name="text">
+    <string>Прямоугольник</string>
+   </property>
+   <property name="toolTip">
+    <string>Рисует прямоугольник (Ctrl + W)</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Назад</string>
+   </property>
+  </action>
+  <action name="action_lactic">
+   <property name="text">
+    <string>Ластик</string>
+   </property>
+   <property name="toolTip">
+    <string>Стирает линией(Ctrl + L)</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1180</width>
+    <height>915</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Работа с изображениями</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1180</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="action_download"/>
+    <addaction name="action_save"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Изображение</string>
+    </property>
+    <addaction name="action_red"/>
+    <addaction name="action_green"/>
+    <addaction name="action_blue"/>
+    <addaction name="action_all"/>
+    <addaction name="action_rotate_90"/>
+    <addaction name="action_inrotate_90"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_red"/>
+   <addaction name="action_blue"/>
+   <addaction name="action_green"/>
+   <addaction name="action_all"/>
+   <addaction name="action_rotate_90"/>
+   <addaction name="action_inrotate_90"/>
+  </widget>
+  <action name="action_download">
+   <property name="icon">
+    <iconset theme="download">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Загрузить новое изображение (Ctrl + I)</string>
+   </property>
+   <property name="toolTip">
+    <string>Загрузить изображение (Ctrl + I)</string>
+   </property>
+  </action>
+  <action name="action_red">
+   <property name="text">
+    <string>Красный канал</string>
+   </property>
+   <property name="toolTip">
+    <string>Красный канал (Ctrl + R)</string>
+   </property>
+  </action>
+  <action name="action_blue">
+   <property name="text">
+    <string>Синий канал</string>
+   </property>
+   <property name="toolTip">
+    <string>Синий канал (Ctrl + B)</string>
+   </property>
+  </action>
+  <action name="action_green">
+   <property name="text">
+    <string>Зелёный канал</string>
+   </property>
+   <property name="toolTip">
+    <string>Зелёный канал (Ctrl + G)</string>
+   </property>
+  </action>
+  <action name="action_all">
+   <property name="text">
+    <string>Все каналы</string>
+   </property>
+   <property name="toolTip">
+    <string>Все каналы (Ctrl + W)</string>
+   </property>
+  </action>
+  <action name="action_rotate_90">
+   <property name="text">
+    <string>Повернуть (90)</string>
+   </property>
+   <property name="toolTip">
+    <string>Повернуть 90 (Ctrl + D)</string>
+   </property>
+  </action>
+  <action name="action_inrotate_90">
+   <property name="text">
+    <string>Повернуть (-90)</string>
+   </property>
+   <property name="toolTip">
+    <string>Повернуть - 90 (Ctrl + A)</string>
+   </property>
+  </action>
+  <action name="action_save">
+   <property name="text">
+    <string>Сохранить (Crtl + S)</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
