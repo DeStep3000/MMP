@@ -420,6 +420,7 @@ class Draw(QWidget):
                                                  'Все файлы(*)')[0]
 
         if self.fname:
+            self.alpha.setValue(255)
             self.img = Image.open(self.fname)
             x, y = self.img.size
             self.image.resize(x, y)
