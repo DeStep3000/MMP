@@ -416,17 +416,13 @@ class Draw(QWidget):
     def all_channel(self):
         # Данная функция отвечает за включение всех каналов в изображении,
         # а также добавление этого действия в базу
-        try:
-            self.img.putdata(self.all)
-        except TypeError:
-            self.img = Image.open('picture.png')
-        finally:
-            self.img.save('picture.png')
-            self.pixmap = QPixmap('picture.png')
-            self.image.setPixmap(self.pixmap)
-            self.cur.execute("""Insert Into Base_of_picture(action, value) Values('all_channels', 
+        self.img.putdata(self.all)
+        self.img.save('picture.png')
+        self.pixmap = QPixmap('picture.png')
+        self.image.setPixmap(self.pixmap)
+        self.cur.execute("""Insert Into Base_of_picture(action, value) Values('all_channels', 
             'all')""")
-            self.file.commit()
+        self.file.commit()
 
     def rotate_90(self):
         # Данная функция отвечает за поворачивание изображения на 90 градусов по часовой,
