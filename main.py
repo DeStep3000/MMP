@@ -1,3 +1,5 @@
+# Для начала импортируем все нужные нам библиотеки
+
 import sqlite3
 import sys
 
@@ -7,6 +9,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QColorDialog, \
     QFileDialog, QLabel, QSlider
+
+# Класс, который будет рисовать линии заданного размера и цвета
 
 
 class BrushPoint:
@@ -22,6 +26,8 @@ class BrushPoint:
         painter.drawEllipse(self.x - self.size_brush, self.y - self.size_brush,
                             self.size_brush, self.size_brush)
 
+# Класс, который отвечает за стирание ластиком
+
 
 class Eraser:
     def __init__(self, x, y):
@@ -32,6 +38,8 @@ class Eraser:
         painter.setBrush(QBrush(QColor(240, 240, 240)))
         painter.setPen(QColor(240, 240, 240))
         painter.drawEllipse(self.x - 10, self.y - 10, 10, 10)
+
+# Класс, который рисует прямые линии заданного размера и цвета
 
 
 class Line:
@@ -48,6 +56,8 @@ class Line:
         painter.setPen(QPen(QColor(self.colors[0], self.colors[1], self.colors[-1]),
                             self.size, Qt.SolidLine))
         painter.drawLine(self.sx, self.sy, self.ex, self.ey)
+
+# Класс, который динамично рисует окружности
 
 
 class Circle:
@@ -66,6 +76,8 @@ class Circle:
         painter.drawEllipse(self.cx - self.radius, self.cy - self.radius, self.radius * 2,
                             self.radius * 2)
 
+# Класс, который динамично рисует прямоугольники
+
 
 class Rectangle:
     def __init__(self, x0, y0, x, y, colors):
@@ -80,6 +92,8 @@ class Rectangle:
         painter.setPen(QColor(self.colors[0], self.colors[1], self.colors[-1]))
         painter.drawRect(self.cx, self.cy, self.x, self.y)
 
+# Создадим некий холст, на котором будут проводиться риосование
+
 
 class Canvas(QWidget):
     def __init__(self):
@@ -88,12 +102,10 @@ class Canvas(QWidget):
         self.color = '#000000'
         self.size_brush = 6
         self.size_line = 4
-        self.id = 0
         self.red = 0
         self.green = 0
         self.blue = 0
         self.colors = (self.red, self.green, self.blue)
-        self.id = 0
 
         self.file = sqlite3.connect('base.db')
         self.cur = self.file.cursor()
@@ -121,6 +133,7 @@ class Canvas(QWidget):
         painter.end()
 
     def run(self):
+        # Данная функция отвечает за настройку цвета
         color = QColorDialog.getColor()
         if color.isValid():
             self.color = color.name()
@@ -132,7 +145,7 @@ class Canvas(QWidget):
             self.colors = (self.red, self.green, self.blue)
 
     def mousePressEvent(self, event):
-        self.id += 1
+        # Данная функция отвечает за нажатие на мышку и запись в базу данных
         if self.color not in list(map(lambda x: x[0],
                                       self.cur.execute("""SELECT color FROM colors""").fetchall())):
             self.cur.execute("""Insert INTO colors(color) Values (?) """, (self.color,))
@@ -170,6 +183,7 @@ class Canvas(QWidget):
         self.file.commit()
 
     def mouseMoveEvent(self, event):
+        # Данная функция отвечает за передвижение мышки и динамичное рисование
         if self.instrument == 'brush':
             self.objects.append(BrushPoint(event.x(), event.y(), self.colors, self.size_brush))
             self.update()
@@ -188,6 +202,8 @@ class Canvas(QWidget):
         elif self.instrument == 'eraser':
             self.objects.append(Eraser(event.x(), event.y()))
             self.update()
+
+    # Теперь будем задавать разные свойства при нажатии на кнопки
 
     def setBrush1(self):
         self.instrument = 'brush'
@@ -228,6 +244,8 @@ class Canvas(QWidget):
         self.instrument = 'rectangle'
 
     def setPicture(self):
+        # Данная функция отвечает за создание диалогового окна при загрузке изображения,
+        # а также отвечает за запуск нового модуля приложения
         self.fname = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '',
                                                  'Картинка(*.jpg);; Картинка(*.png);; '
                                                  'Все файлы(*)')[0]
@@ -239,6 +257,8 @@ class Canvas(QWidget):
         self.instrument = 'eraser'
 
     def save(self):
+        # Данная функция сохраняет изображение, делая скрин экрана, а также создаёт диалоговое окно,
+        # также сохраняет действие сохранения в базу
         save_file = QFileDialog.getSaveFileName(self, 'Загрузить картинку', '', '*.jpg;'
                                                                             ';*.png;;Все файлы *')
         screen = QApplication.primaryScreen()
@@ -256,6 +276,8 @@ class Canvas(QWidget):
 
 class Window(QMainWindow):
     def __init__(self):
+        # В данном классе мы подключаем наш подготовленный дизайн к программе и
+        # связываем кнопки дизайна с определёнными функциями
         super(Window, self).__init__()
         uic.loadUi('window.ui', self)
         self.setCentralWidget(Canvas())
@@ -281,12 +303,15 @@ class Window(QMainWindow):
         self.action_save.triggered.connect(self.centralWidget().save)
 
     def closeEvent(self, event):
+        # Данная функция срабатывает, когда пользователь нажимает на крестик окна или клавишу Esc,
+        # очищая  базу данных, кроме цвета, так как цвет нам не к чему удалять
         self.cur = self.centralWidget().file.cursor()
         self.cur.execute("""DELETE from Base_of_paint""")
         self.centralWidget().file.commit()
         self.centralWidget().file.close()
 
     def keyPressEvent(self, event):
+        # Данная функция отвечает за комбинацию клавиш и их действие
         if event.key() == Qt.Key_Escape:
             self.close()
         elif event.modifiers() == Qt.ControlModifier:
@@ -308,6 +333,8 @@ class Window(QMainWindow):
             elif event.key() == Qt.Key_E:
                 self.centralWidget().instrument = 'brush'
                 self.centralWidget().size_brush = 6
+
+# Данный класс отвечает за работу с изображением, которое мы загрузили
 
 
 class Draw(QWidget):
@@ -343,6 +370,7 @@ class Draw(QWidget):
         self.file.commit()
 
     def change_alpha(self):
+        # Данная функция отвечает за изменения альфа
         transport = int(self.alpha.value())
         self.img.putalpha(transport)
         self.img.save('picture.png')
@@ -353,6 +381,8 @@ class Draw(QWidget):
         self.file.commit()
 
     def red_channel(self):
+        # Данная функция отвечает за усиление красного канала в изображении,
+        # а также добавление этого действия в базу
         self.img.putdata(self.r)
         self.img.save('picture.png')
         self.cur.execute("""Insert Into Base_of_picture(action, value) Values('red_channel', 
@@ -362,6 +392,8 @@ class Draw(QWidget):
         self.file.commit()
 
     def green_channel(self):
+        # Данная функция отвечает за усиление зелёного канала в изображении,
+        # а также добавление этого действия в базу
         self.img.putdata(self.g)
         self.img.save('picture.png')
         self.cur.execute("""Insert Into Base_of_picture(action, value) Values('green_channel', 
@@ -371,6 +403,8 @@ class Draw(QWidget):
         self.file.commit()
 
     def blue_channel(self):
+        # Данная функция отвечает за усиление синего канала в изображении,
+        # а также добавление этого действия в базу
         self.img.putdata(self.b)
         self.img.save('picture.png')
         self.cur.execute("""Insert Into Base_of_picture(action, value) Values('blue_channel', 
@@ -380,6 +414,8 @@ class Draw(QWidget):
         self.file.commit()
 
     def all_channel(self):
+        # Данная функция отвечает за включение всех каналов в изображении,
+        # а также добавление этого действия в базу
         try:
             self.img.putdata(self.all)
         except TypeError:
@@ -393,6 +429,8 @@ class Draw(QWidget):
             self.file.commit()
 
     def rotate_90(self):
+        # Данная функция отвечает за поворачивание изображения на 90 градусов по часовой,
+        # а также добавление этого действия в базу
         self.img = self.img.rotate(90, expand=True)
         x, y = self.img.size
         self.img.save('picture.png')
@@ -404,6 +442,8 @@ class Draw(QWidget):
         self.file.commit()
 
     def inrotate_90(self):
+        # Данная функция отвечает за поворачивание изображения на 90 градусов против часовой,
+        # а также добавление этого действия в базу
         self.img = self.img.rotate(-90, expand=True)
         x, y = self.img.size
         self.img.save('picture.png')
@@ -415,6 +455,8 @@ class Draw(QWidget):
         self.file.commit()
 
     def download(self):
+        # Данная функция отвечает за закачивание нового изображения для работы с ним,
+        # а также добавление этого действия в базу
         self.fname = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '',
                                                  'Картинка(*.jpg);; Картинка(*.png);; '
                                                  'Все файлы(*)')[0]
@@ -435,6 +477,8 @@ class Draw(QWidget):
             self.file.commit()
 
     def save(self):
+        # Данная функция отвечает за сохранение полученного изображения,
+        # а также добавление этого действия в базу
         save_file = QFileDialog.getSaveFileName(self, 'Загрузить картинку', '', '*.jpg;'
                                                                             ';*.png;;Все файлы *')
         screen = QApplication.primaryScreen()
@@ -452,6 +496,8 @@ class Draw(QWidget):
 
 class Pictures(QMainWindow):
     def __init__(self, fname):
+        # В данном классе мы подключаем наш подготовленный дизайн к программе и
+        # связываем кнопки дизайна с определёнными функциями
         super(Pictures, self).__init__()
         uic.loadUi('pictures.ui', self)
         self.setCentralWidget(Draw(fname))
@@ -469,6 +515,7 @@ class Pictures(QMainWindow):
         self.action_save.triggered.connect(self.centralWidget().save)
 
     def keyPressEvent(self, event):
+        # Данная функция отвечает за комбинацию клавиш и их действие
         if event.key() == Qt.Key_Escape:
             self.close()
         if event.modifiers() == Qt.ControlModifier:
@@ -490,6 +537,8 @@ class Pictures(QMainWindow):
                 self.centralWidget().save()
 
     def closeEvent(self, event):
+        # Данная функция срабатывает, когда пользователь нажимает на крестик окна или клавишу Esc,
+        # очищая базу данных
         self.cur = self.centralWidget().file.cursor()
         self.cur.execute("""DELETE from Base_of_picture""")
         self.centralWidget().file.commit()
@@ -497,9 +546,11 @@ class Pictures(QMainWindow):
 
 
 def except_hook(cls, exception, traceback):
+    # Данная функция расшифровывает коды ошибок, что очень удобно при создании программы
     sys.__excepthook__(cls, exception, traceback)
 
 
+# Вызовем нашу программу:
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = Window()
