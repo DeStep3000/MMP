@@ -468,6 +468,7 @@ class Draw(QWidget):
             self.r = [(d[0], 0, 0) for d in self.data]
             self.g = [(0, d[1], 0) for d in self.data]
             self.b = [(0, 0, d[-1]) for d in self.data]
+            self.all = [(d[0], d[1], d[-1]) for d in self.data]
             self.cur.execute("""Insert Into Base_of_picture(action, value) Values('download', 
                             ?)""", (self.fname,))
             self.file.commit()
